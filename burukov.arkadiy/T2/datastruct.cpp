@@ -1,6 +1,4 @@
 #include "datastruct.hpp"
-#include <algorithm>
-#include <cstdlib>
 #include <iomanip>
 #include <string>
 
