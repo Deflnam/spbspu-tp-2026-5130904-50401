@@ -1,34 +1,44 @@
 #include "datastruct.hpp"
-#include <iostream>
-#include <vector>
+
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <limits>
+#include <vector>
 
 int main()
 {
-  using T = burukov::DataStruct;
-  std::vector<T> data;
+  using data_t = burukov::DataStruct;
 
-  using iit_t = std::istream_iterator<T>;
+  std::vector< data_t > data;
+
+  using input_iterator_t = std::istream_iterator< data_t >;
+
   while (std::cin)
   {
     std::copy(
-        iit_t{ std::cin },
-        iit_t{},
-        std::back_inserter(data));
-        
+      input_iterator_t{ std::cin },
+      input_iterator_t{},
+      std::back_inserter(data));
+
     if (std::cin.fail() && !std::cin.eof())
     {
       std::cin.clear();
-      std::cin.ignore(std::numeric_limits< std::streamsize >::max(),'\n');
+
+      std::cin.ignore(
+        std::numeric_limits< std::streamsize >::max(),
+        '\n');
     }
   }
 
   std::sort(data.begin(), data.end());
 
-  using oit_t = std::ostream_iterator<T>;
-  std::copy(data.begin(), data.end(), oit_t{std::cout, "\n"});
+  using output_iterator_t = std::ostream_iterator< data_t >;
+
+  std::copy(
+    data.begin(),
+    data.end(),
+    output_iterator_t{ std::cout, "\n" });
 
   return 0;
 }
