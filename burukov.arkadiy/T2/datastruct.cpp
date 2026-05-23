@@ -1,22 +1,21 @@
 #include "datastruct.hpp"
-#include <iomanip>
-#include <cstdlib>
-#include <string>
 #include <algorithm>
+#include <cstdlib>
+#include <iomanip>
+#include <string>
 
 namespace burukov
 {
   class IOGuard
   {
   public:
-    explicit IOGuard(std::basic_ios<char>& s)
-      : s_(s),
-        precision_(s.precision()),
-        width_(s.width()),
-        flags_(s.flags()),
-        fill_(s.fill())
-    {
-    }
+    explicit IOGuard(std::basic_ios< char >& s):
+      s_(s),
+      precision_(s.precision()),
+      width_(s.width()),
+      flags_(s.flags()),
+      fill_(s.fill())
+    {}
 
     ~IOGuard()
     {
@@ -27,10 +26,10 @@ namespace burukov
     }
 
   private:
-    std::basic_ios<char>& s_;
+    std::basic_ios< char >& s_;
     std::streamsize precision_;
     std::streamsize width_;
-    std::basic_ios<char>::fmtflags flags_;
+    std::basic_ios< char >::fmtflags flags_;
     char fill_;
   };
 
@@ -46,9 +45,11 @@ namespace burukov
     {
       return in;
     }
+
     char c = 0;
     in >> c;
-    if (in && c != dest.expected)
+
+    if (in && (c != dest.expected))
     {
       in.setstate(std::ios::failbit);
     }
@@ -67,14 +68,17 @@ namespace burukov
     {
       return in;
     }
+
     char zero = 0;
     char x = 0;
     in >> zero >> x;
+
     if (!in)
     {
       return in;
     }
-    if (zero != '0' || (x != 'x' && x != 'X'))
+
+    if ((zero != '0') || ((x != 'x') && (x != 'X')))
     {
       in.setstate(std::ios::failbit);
       return in;
@@ -85,7 +89,7 @@ namespace burukov
 
   struct Key2ComplexIO
   {
-    std::complex<double>& ref;
+    std::complex< double >& ref;
   };
 
   std::istream& operator>>(std::istream& in, Key2ComplexIO&& dest)
@@ -95,30 +99,37 @@ namespace burukov
     {
       return in;
     }
+
     char hash = 0;
     char c = 0;
     char open = 0;
     in >> hash >> c >> open;
+
     if (!in)
     {
       return in;
     }
-    if (hash != '#' || c != 'c' || open != '(')
+
+    if ((hash != '#') || (c != 'c') || (open != '('))
     {
       in.setstate(std::ios::failbit);
       return in;
     }
+
     double real = 0.0;
     double imag = 0.0;
     in >> real >> imag;
     char close = 0;
     in >> close;
+
     if (close != ')')
     {
       in.setstate(std::ios::failbit);
       return in;
     }
-    dest.ref = std::complex<double>(real, imag);
+
+    dest.ref = std::complex< double >(real, imag);
+
     return in;
   }
 
@@ -130,11 +141,13 @@ namespace burukov
   std::istream& operator>>(std::istream& in, StringIO&& dest)
   {
     std::istream::sentry sentry(in);
+
     if (!sentry)
     {
       return in;
     }
-    return std::getline(in >> DelimiterIO{'"'}, dest.ref, '"');
+
+    return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
   }
 
   struct LabelIO
@@ -145,8 +158,17 @@ namespace burukov
   std::istream& operator>>(std::istream& in, LabelIO&& dest)
   {
     std::istream::sentry sentry(in);
+
     if (!sentry)
     {
+      return in;
+    }
+    char colon = 0;
+    in >> colon;
+
+    if (colon != ':')
+    {
+      in.setstate(std::ios::failbit);
       return in;
     }
     return in >> dest.ref;
@@ -179,16 +201,23 @@ namespace burukov
     bool hasKey2 = false;
     bool hasKey3 = false;
 
-    in >> DelimiterIO{'('} >> DelimiterIO{':'};
+    in >> DelimiterIO{ '(' };
+
     if (!in)
     {
       return in;
     }
 
-    while (in && in.peek() != ')')
+    while (in)
     {
+      if (in.peek() == ')')
+      {
+        break;
+      }
+
       std::string label;
-      in >> LabelIO{label};
+      in >> LabelIO{ label };
+
       if (!in)
       {
         break;
@@ -198,21 +227,21 @@ namespace burukov
       {
         if (markField(in, hasKey1))
         {
-          in >> Key1HexIO{input.key1};
+          in >> Key1HexIO{ input.key1 };
         }
       }
       else if (label == "key2")
       {
         if (markField(in, hasKey2))
         {
-          in >> Key2ComplexIO{input.key2};
+          in >> Key2ComplexIO{ input.key2 };
         }
       }
       else if (label == "key3")
       {
         if (markField(in, hasKey3))
         {
-          in >> StringIO{input.key3};
+          in >> StringIO{ input.key3 };
         }
       }
       else
@@ -220,11 +249,9 @@ namespace burukov
         in.setstate(std::ios::failbit);
         break;
       }
-
-      in >> DelimiterIO{':'};
     }
 
-    in >> DelimiterIO{')'};
+    in >> DelimiterIO{ ')' };
 
     if (in && hasKey1 && hasKey2 && hasKey3)
     {
@@ -240,6 +267,7 @@ namespace burukov
   std::ostream& operator<<(std::ostream& out, const DataStruct& dest)
   {
     std::ostream::sentry sentry(out);
+
     if (!sentry)
     {
       return out;
@@ -248,20 +276,28 @@ namespace burukov
     IOGuard guard(out);
 
     out << "(:key1 ";
+
     if (dest.key1 == 0)
     {
       out << "0x0";
     }
     else
     {
-      out << "0x" << std::hex << std::uppercase << dest.key1;
+      out << "0x"
+          << std::hex
+          << std::uppercase
+          << dest.key1;
     }
-    out << ':';
 
-    out << std::fixed << std::setprecision(1);
-    out << "key2 #c(" << dest.key2.real() << ' ' << dest.key2.imag() << "):";
-
-    out << "key3 \"" << dest.key3 << "\":)";
+    out << ":key2 #c("
+        << std::fixed
+        << std::setprecision(1)
+        << dest.key2.real()
+        << ' '
+        << dest.key2.imag()
+        << "):key3 \""
+        << dest.key3
+        << "\":)";
 
     return out;
   }
@@ -272,11 +308,13 @@ namespace burukov
     {
       return lhs.key1 < rhs.key1;
     }
-    double lAbs = std::abs(lhs.key2);
-    double rAbs = std::abs(rhs.key2);
-    if (lAbs != rAbs)
+
+    const double lhsAbs = std::abs(lhs.key2);
+    const double rhsAbs = std::abs(rhs.key2);
+
+    if (lhsAbs != rhsAbs)
     {
-      return lAbs < rAbs;
+      return lhsAbs < rhsAbs;
     }
     return lhs.key3.length() < rhs.key3.length();
   }
