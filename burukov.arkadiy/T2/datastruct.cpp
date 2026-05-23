@@ -236,11 +236,45 @@ namespace burukov
 
   std::ostream& operator<<(std::ostream& out, const DataStruct& dest)
   {
+    std::ostream::sentry sentry(out);
+    if (!sentry)
+    {
+      return out;
+    }
+
+    IOGuard guard(out);
+
+    out << "(:key1 ";
+    if (dest.key1 == 0)
+    {
+      out << "0x0";
+    }
+    else
+    {
+      out << "0x" << std::hex << std::uppercase << dest.key1;
+    }
+    out << ':';
+
+    out << std::fixed << std::setprecision(1);
+    out << "key2 #c(" << dest.key2.real() << ' ' << dest.key2.imag() << "):";
+
+    out << "key3 \"" << dest.key3 << "\":)";
+
     return out;
   }
 
   bool operator<(const DataStruct& lhs, const DataStruct& rhs)
   {
-    return false;
+    if (lhs.key1 != rhs.key1)
+    {
+      return lhs.key1 < rhs.key1;
+    }
+    double lAbs = std::abs(lhs.key2);
+    double rAbs = std::abs(rhs.key2);
+    if (lAbs != rAbs)
+    {
+      return lAbs < rAbs;
+    }
+    return lhs.key3.length() < rhs.key3.length();
   }
 }
