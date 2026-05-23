@@ -152,8 +152,85 @@ namespace burukov
     return in >> dest.ref;
   }
 
+  static bool markField(std::istream& in, bool& hasKey)
+  {
+    if (hasKey)
+    {
+      in.setstate(std::ios::failbit);
+      return false;
+    }
+    hasKey = true;
+    return true;
+  }
+
   std::istream& operator>>(std::istream& in, DataStruct& dest)
   {
+    std::istream::sentry sentry(in);
+    if (!sentry)
+    {
+      return in;
+    }
+
+    DataStruct input = {};
+    bool hasKey1 = false;
+    bool hasKey2 = false;
+    bool hasKey3 = false;
+
+    in >> DelimiterIO{'('} >> DelimiterIO{':'};
+    if (!in)
+    {
+      return in;
+    }
+
+    while (in && in.peek() != ')')
+    {
+      std::string label;
+      in >> LabelIO{label};
+      if (!in)
+      {
+        break;
+      }
+
+      if (label == "key1")
+      {
+        if (markField(in, hasKey1))
+        {
+          in >> Key1HexIO{input.key1};
+        }
+      }
+      else if (label == "key2")
+      {
+        if (markField(in, hasKey2))
+        {
+          in >> Key2ComplexIO{input.key2};
+        }
+      }
+      else if (label == "key3")
+      {
+        if (markField(in, hasKey3))
+        {
+          in >> StringIO{input.key3};
+        }
+      }
+      else
+      {
+        in.setstate(std::ios::failbit);
+        break;
+      }
+
+      in >> DelimiterIO{':'};
+    }
+
+    in >> DelimiterIO{')'};
+
+    if (in && hasKey1 && hasKey2 && hasKey3)
+    {
+      dest = input;
+    }
+    else
+    {
+      in.setstate(std::ios::failbit);
+    }
     return in;
   }
 
