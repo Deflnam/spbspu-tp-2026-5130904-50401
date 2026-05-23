@@ -1,6 +1,7 @@
 #include "datastruct.hpp"
 #include <iomanip>
 #include <string>
+#include <cmath>
 
 namespace burukov
 {
@@ -161,14 +162,7 @@ namespace burukov
     {
       return in;
     }
-    char colon = 0;
-    in >> colon;
 
-    if (colon != ':')
-    {
-      in.setstate(std::ios::failbit);
-      return in;
-    }
     return in >> dest.ref;
   }
 
@@ -199,7 +193,7 @@ namespace burukov
     bool hasKey2 = false;
     bool hasKey3 = false;
 
-    in >> DelimiterIO{ '(' };
+    in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
 
     if (!in)
     {
@@ -247,6 +241,8 @@ namespace burukov
         in.setstate(std::ios::failbit);
         break;
       }
+
+      in >> DelimiterIO{ ':' };
     }
 
     in >> DelimiterIO{ ')' };
@@ -302,6 +298,8 @@ namespace burukov
 
   bool operator<(const DataStruct& lhs, const DataStruct& rhs)
   {
+    constexpr double epsilon = 1e-10;
+
     if (lhs.key1 != rhs.key1)
     {
       return lhs.key1 < rhs.key1;
@@ -310,10 +308,11 @@ namespace burukov
     const double lhsAbs = std::abs(lhs.key2);
     const double rhsAbs = std::abs(rhs.key2);
 
-    if (lhsAbs != rhsAbs)
+    if (std::abs(lhsAbs - rhsAbs) > epsilon)
     {
       return lhsAbs < rhsAbs;
     }
+
     return lhs.key3.length() < rhs.key3.length();
   }
 }
