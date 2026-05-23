@@ -11,13 +11,17 @@ int main()
   std::vector<T> data;
 
   using iit_t = std::istream_iterator<T>;
-  while (!std::cin.eof())
+  while (std::cin)
   {
-    std::copy(iit_t{std::cin}, iit_t{}, std::back_inserter(data));
-    if (std::cin.fail())
+    std::copy(
+        iit_t{ std::cin },
+        iit_t{},
+        std::back_inserter(data));
+        
+    if (std::cin.fail() && !std::cin.eof())
     {
-      std::cin.clear(std::cin.rdstate() & ~std::ios::failbit);
-      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits< std::streamsize >::max(),'\n');
     }
   }
 
