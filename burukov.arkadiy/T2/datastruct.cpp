@@ -152,15 +152,18 @@ namespace burukov
     return in >> dest.ref;
   }
 
-  static bool markField(std::istream& in, bool& hasKey)
+  namespace
   {
-    if (hasKey)
+    bool markField(std::istream& in, bool& hasKey)
     {
-      in.setstate(std::ios::failbit);
-      return false;
+      if (hasKey)
+      {
+        in.setstate(std::ios::failbit);
+        return false;
+      }
+      hasKey = true;
+      return true;
     }
-    hasKey = true;
-    return true;
   }
 
   std::istream& operator>>(std::istream& in, DataStruct& dest)
