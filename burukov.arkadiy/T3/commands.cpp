@@ -105,3 +105,33 @@ void burukov::max(std::istream& in, std::ostream& out, const std::vector<Polygon
     throw std::invalid_argument("invalid command");
   }
 }
+
+void burukov::min(std::istream& in, std::ostream& out, const std::vector<Polygon>& polygons)
+{
+  if (polygons.empty())
+  {
+    throw std::invalid_argument("no polygons for min");
+  }
+
+  std::string arg;
+
+  if (!(in >> arg))
+  {
+    throw std::invalid_argument("invalid command");
+  }
+
+  if (arg == "AREA")
+  {
+    auto it = std::min_element(polygons.begin(), polygons.end(), areaLess);
+    out << std::fixed << std::setprecision(1) << getArea(*it) << '\n';
+  }
+  else if (arg == "VERTEXES")
+  {
+    auto it = std::min_element(polygons.begin(), polygons.end(), verticesLess);
+    out << it->points.size() << '\n';
+  }
+  else
+  {
+    throw std::invalid_argument("invalid command");
+  }
+}
