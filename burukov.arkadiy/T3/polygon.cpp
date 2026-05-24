@@ -188,4 +188,29 @@ namespace burukov
 
     return std::accumulate(areas.begin(), areas.end(), 0.0);
   }
+
+  bool hasEvenVertices(const Polygon& polygon)
+  {
+    return polygon.points.size() % 2 == 0;
+  }
+
+  bool hasOddVertices(const Polygon& polygon)
+  {
+    return polygon.points.size() % 2 != 0;
+  }
+
+  bool hasNVertices(const Polygon& polygon, size_t count)
+  {
+    return polygon.points.size() == count;
+  }
+
+  bool areaLess(const Polygon& lhs, const Polygon& rhs)
+  {
+    return getArea(lhs) < getArea(rhs);
+  }
+
+  bool verticesLess(const Polygon& lhs, const Polygon& rhs)
+  {
+    return lhs.points.size() < rhs.points.size();
+  }
 }
