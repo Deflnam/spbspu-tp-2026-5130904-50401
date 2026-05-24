@@ -213,4 +213,61 @@ namespace burukov
   {
     return lhs.points.size() < rhs.points.size();
   }
+
+  bool isRect(const Polygon& polygon)
+  {
+    if (polygon.points.size() != 4)
+    {
+      return false;
+    }
+
+    const auto& pts = polygon.points;
+    long long dx01 = static_cast<long long>(pts[1].x) - pts[0].x;
+    long long dy01 = static_cast<long long>(pts[1].y) - pts[0].y;
+    long long dx12 = static_cast<long long>(pts[2].x) - pts[1].x;
+    long long dy12 = static_cast<long long>(pts[2].y) - pts[1].y;
+    long long dx23 = static_cast<long long>(pts[3].x) - pts[2].x;
+    long long dy23 = static_cast<long long>(pts[3].y) - pts[2].y;
+    long long dx30 = static_cast<long long>(pts[0].x) - pts[3].x;
+    long long dy30 = static_cast<long long>(pts[0].y) - pts[3].y;
+
+    return (dx01 * dx12 + dy01 * dy12 == 0) &&
+           (dx12 * dx23 + dy12 * dy23 == 0) &&
+           (dx23 * dx30 + dy23 * dy30 == 0) &&
+           (dx30 * dx01 + dy30 * dy01 == 0);
+  }
+
+  bool hasRightAngle(const Polygon& polygon)
+  {
+    if (polygon.points.size() < 3)
+    {
+      return false;
+    }
+
+    size_t n = polygon.points.size();
+
+    for (size_t i = 0; i < n; ++i)
+    {
+      const Point& a = polygon.points[i];
+      const Point& b = polygon.points[(i + 1) % n];
+      const Point& c = polygon.points[(i + 2) % n];
+
+      long long abx = static_cast<long long>(b.x) - a.x;
+      long long aby = static_cast<long long>(b.y) - a.y;
+      long long bcx = static_cast<long long>(c.x) - b.x;
+      long long bcy = static_cast<long long>(c.y) - b.y;
+
+      if (abx * bcx + aby * bcy == 0)
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool isRightShape(const Polygon& polygon)
+  {
+    return hasRightAngle(polygon);
+  }
 }
