@@ -200,3 +200,9 @@ void burukov::perms(std::istream& in, std::ostream& out, const std::vector<Polyg
   size_t result = std::count_if(polygons.begin(), polygons.end(), predicate);
   out << result << '\n';
 }
+
+void burukov::rects(std::istream& in, std::ostream& out, const std::vector<Polygon>& polygons)
+{
+  size_t result = std::count_if(polygons.begin(), polygons.end(), isRect);
+  out << result << '\n';
+}
