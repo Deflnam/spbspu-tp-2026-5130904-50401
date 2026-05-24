@@ -1,6 +1,6 @@
 #include "commands.hpp"
-
 #include <iomanip>
+#include <limits>
 
 namespace burukov
 {
@@ -18,7 +18,7 @@ namespace burukov
       throw std::logic_error("");
     }
 
-    notes[name] = std::make_shared< burukov::Note >(name);
+    notes[name] = std::make_shared<Note>(name);
   }
 
   void line(std::istream& in, std::ostream&, NotesMap& notes)
@@ -32,7 +32,6 @@ namespace burukov
     }
 
     auto it = notes.find(name);
-
     if (it == notes.end())
     {
       throw std::logic_error("");
@@ -51,7 +50,6 @@ namespace burukov
     }
 
     auto it = notes.find(name);
-
     if (it == notes.end())
     {
       throw std::logic_error("");
@@ -106,7 +104,6 @@ namespace burukov
     }
 
     auto it = notes.find(name);
-
     if (it == notes.end())
     {
       throw std::logic_error("");
@@ -146,7 +143,6 @@ namespace burukov
     }
 
     auto it = notes.find(name);
-
     if (it == notes.end())
     {
       throw std::logic_error("");
@@ -165,7 +161,6 @@ namespace burukov
     }
 
     auto it = notes.find(name);
-
     if (it == notes.end())
     {
       throw std::logic_error("");
