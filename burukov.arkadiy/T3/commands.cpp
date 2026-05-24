@@ -135,3 +135,45 @@ void burukov::min(std::istream& in, std::ostream& out, const std::vector<Polygon
     throw std::invalid_argument("invalid command");
   }
 }
+
+void burukov::count(std::istream& in, std::ostream& out, const std::vector<Polygon>& polygons)
+{
+  std::string arg;
+
+  if (!(in >> arg))
+  {
+    throw std::invalid_argument("invalid command");
+  }
+
+  size_t result = 0;
+
+  if (arg == "EVEN")
+  {
+    result = std::count_if(polygons.begin(), polygons.end(), hasEvenVertices);
+  }
+  else if (arg == "ODD")
+  {
+    result = std::count_if(polygons.begin(), polygons.end(), hasOddVertices);
+  }
+  else if (isNumber(arg))
+  {
+    size_t count = std::stoull(arg);
+
+    if (count < 3)
+    {
+      throw std::invalid_argument("invalid vertex count");
+    }
+
+    result = std::count_if(polygons.begin(), polygons.end(),
+      [count](const Polygon& p)
+      {
+        return hasNVertices(p, count);
+      });
+  }
+  else
+  {
+    throw std::invalid_argument("invalid command");
+  }
+
+  out << result << '\n';
+}
