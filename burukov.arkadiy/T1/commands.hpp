@@ -1,8 +1,7 @@
-#ifndef COMMANDS_HPP
-#define COMMANDS_HPP
+#ifndef BURUKOV_COMMANDS_HPP
+#define BURUKOV_COMMANDS_HPP
 
 #include <iostream>
-#include <memory>
 #include <unordered_map>
 
 #include "note.hpp"

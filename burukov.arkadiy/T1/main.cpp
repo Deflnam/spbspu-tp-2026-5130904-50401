@@ -7,20 +7,21 @@
 
 int main()
 {
-  burukov::NotesMap notes;
+  using namespace burukov;
 
-  using cmd_t = void (*)(std::istream&, std::ostream&, burukov::NotesMap&);
-  std::unordered_map<std::string, cmd_t> cmds;
+  NotesMap notes;
 
-  cmds["note"] = burukov::note;
-  cmds["line"] = burukov::line;
-  cmds["show"] = burukov::show;
-  cmds["drop"] = burukov::drop;
-  cmds["link"] = burukov::link;
-  cmds["mind"] = burukov::mind;
-  cmds["halt"] = burukov::halt;
-  cmds["expired"] = burukov::expired;
-  cmds["refresh"] = burukov::refresh;
+  std::unordered_map<std::string, void (*)(std::istream&, std::ostream&, NotesMap&)> cmds;
+
+  cmds["note"] = note;
+  cmds["line"] = line;
+  cmds["show"] = show;
+  cmds["drop"] = drop;
+  cmds["link"] = link;
+  cmds["mind"] = mind;
+  cmds["halt"] = halt;
+  cmds["expired"] = expired;
+  cmds["refresh"] = refresh;
 
   std::string cmd;
 
@@ -28,11 +29,20 @@ int main()
   {
     try
     {
-      cmds.at(cmd)(std::cin, std::cout, notes);
+      auto it = cmds.find(cmd);
+      if (it != cmds.end())
+      {
+        it->second(std::cin, std::cout, notes);
+      }
+      else
+      {
+        throw std::logic_error("");
+      }
     }
     catch (...)
     {
-      std::cout << "<INVALID COMMAND>" << '\n';
+      std::cout << "<INVALID COMMAND>\n";
+      std::cin.clear();
       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
   }

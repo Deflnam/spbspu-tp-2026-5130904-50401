@@ -1,75 +1,67 @@
 #include "note.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 namespace burukov
 {
-  Note::Note(const std::string& name):
-    name_(name)
+  Note::Note(const std::string& name)
+    : m_name(name)
   {}
 
   void Note::addLine(const std::string& text)
   {
-    lines_.push_back(text);
+    m_lines.push_back(text);
   }
 
   void Note::showLines() const
   {
-    for (size_t i = 0; i < lines_.size(); ++i)
+    for (const auto& line : m_lines)
     {
-      std::cout << lines_[i] << '\n';
+      std::cout << line << '\n';
     }
   }
 
-  void Note::addLink(const std::weak_ptr< Note >& link)
+  void Note::addLink(const std::weak_ptr<Note>& link)
   {
-    std::shared_ptr< Note > newLink = link.lock();
-
-    for (auto it = links_.begin(); it != links_.end(); ++it)
+    auto newLink = link.lock();
+    if (!newLink)
     {
-      if (auto existing = it->lock())
+      throw std::logic_error("");
+    }
+
+    for (const auto& existingWeak : m_links)
+    {
+      auto existing = existingWeak.lock();
+      if (existing && existing == newLink)
       {
-        if (newLink && existing && newLink == existing)
-        {
-          throw std::logic_error("");
-        }
+        throw std::logic_error("");
       }
     }
 
-    links_.push_back(link);
+    m_links.push_back(link);
   }
 
-  void Note::removeLink(const std::shared_ptr< Note >& target)
+  void Note::removeLink(const std::shared_ptr<Note>& target)
   {
-    auto it = links_.begin();
+    auto it = std::find_if(m_links.begin(), m_links.end(),
+      [&target](const std::weak_ptr<Note>& wptr) {
+        auto ptr = wptr.lock();
+        return ptr && ptr == target;
+      });
 
-    while (it != links_.end())
+    if (it != m_links.end())
     {
-      if (auto current = it->lock())
-      {
-        if (current == target)
-        {
-          it = links_.erase(it);
-
-          return;
-        }
-        else
-        {
-          ++it;
-        }
-      }
-      else
-      {
-        ++it;
-      }
+      m_links.erase(it);
     }
   }
 
   void Note::showLinks() const
   {
-    for (auto it = links_.begin(); it != links_.end(); ++it)
+    for (const auto& link : m_links)
     {
-      if (auto target = it->lock())
+      auto target = link.lock();
+      if (target)
       {
         std::cout << target->getName() << '\n';
       }
@@ -80,9 +72,9 @@ namespace burukov
   {
     size_t count = 0;
 
-    for (auto it = links_.begin(); it != links_.end(); ++it)
+    for (const auto& link : m_links)
     {
-      if (!it->lock())
+      if (link.expired())
       {
         ++count;
       }
@@ -93,23 +85,23 @@ namespace burukov
 
   void Note::clearExpired()
   {
-    auto it = links_.begin();
+    auto it = m_links.begin();
 
-    while (it != links_.end())
+    while (it != m_links.end())
     {
-      if (it->lock())
+      if (it->expired())
       {
-        ++it;
+        it = m_links.erase(it);
       }
       else
       {
-        it = links_.erase(it);
+        ++it;
       }
     }
   }
 
   const std::string& Note::getName() const
   {
-    return name_;
+    return m_name;
   }
 }
