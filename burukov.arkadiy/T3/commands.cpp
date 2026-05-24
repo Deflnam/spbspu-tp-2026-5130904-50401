@@ -14,6 +14,29 @@ namespace
   {
     return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
   }
+
+  void skipWhitespaceTillNewline(std::istream& in)
+  {
+    while (in && std::isspace(static_cast<unsigned char>(in.peek())))
+    {
+      if (in.peek() == '\n')
+      {
+        return;
+      }
+
+      in.get();
+    }
+  }
+
+  void checkLineEnd(std::istream& in)
+  {
+    skipWhitespaceTillNewline(in);
+
+    if (in && in.peek() != std::char_traits<char>::eof())
+    {
+      throw std::invalid_argument("invalid command");
+    }
+  }
 }
 
 void burukov::area(std::istream& in, std::ostream& out, const std::vector<Polygon>& polygons)
@@ -187,6 +210,8 @@ void burukov::perms(std::istream& in, std::ostream& out, const std::vector<Polyg
     throw std::invalid_argument("invalid polygon format");
   }
 
+  checkLineEnd(in);
+
   auto predicate = [&ref](const Polygon& p) -> bool
   {
     if (p.points.size() != ref.points.size())
@@ -203,12 +228,14 @@ void burukov::perms(std::istream& in, std::ostream& out, const std::vector<Polyg
 
 void burukov::rects(std::istream& in, std::ostream& out, const std::vector<Polygon>& polygons)
 {
+  checkLineEnd(in);
   size_t result = std::count_if(polygons.begin(), polygons.end(), isRect);
   out << result << '\n';
 }
 
 void burukov::rightShapes(std::istream& in, std::ostream& out, const std::vector<Polygon>& polygons)
 {
+  checkLineEnd(in);
   size_t result = std::count_if(polygons.begin(), polygons.end(), isRightShape);
   out << result << '\n';
 }
