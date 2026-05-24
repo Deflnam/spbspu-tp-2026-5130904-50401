@@ -20,6 +20,10 @@ namespace burukov
     {
       std::cout << line << '\n';
     }
+    if (m_lines.empty())
+    {
+      std::cout << '\n';
+    }
   }
 
   void Note::addLink(const std::weak_ptr<Note>& link)
@@ -58,13 +62,19 @@ namespace burukov
 
   void Note::showLinks() const
   {
+    bool printed = false;
     for (const auto& link : m_links)
     {
       auto target = link.lock();
       if (target)
       {
         std::cout << target->getName() << '\n';
+        printed = true;
       }
+    }
+    if (!printed)
+    {
+      std::cout << '\n';
     }
   }
 
@@ -74,7 +84,7 @@ namespace burukov
 
     for (const auto& link : m_links)
     {
-      if (link.expired())
+      if (!link.lock())
       {
         ++count;
       }

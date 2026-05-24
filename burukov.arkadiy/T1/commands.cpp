@@ -148,7 +148,7 @@ namespace burukov
       throw std::logic_error("");
     }
 
-    out << it->second->countExpired();
+    out << it->second->countExpired() << '\n';
   }
 
   void refresh(std::istream& in, std::ostream&, NotesMap& notes)
