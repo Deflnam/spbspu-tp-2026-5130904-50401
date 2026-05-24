@@ -177,3 +177,26 @@ void burukov::count(std::istream& in, std::ostream& out, const std::vector<Polyg
 
   out << result << '\n';
 }
+
+void burukov::perms(std::istream& in, std::ostream& out, const std::vector<Polygon>& polygons)
+{
+  Polygon ref{};
+
+  if (!(in >> ref))
+  {
+    throw std::invalid_argument("invalid polygon format");
+  }
+
+  auto predicate = [&ref](const Polygon& p) -> bool
+  {
+    if (p.points.size() != ref.points.size())
+    {
+      return false;
+    }
+
+    return std::is_permutation(p.points.begin(), p.points.end(), ref.points.begin());
+  };
+
+  size_t result = std::count_if(polygons.begin(), polygons.end(), predicate);
+  out << result << '\n';
+}
